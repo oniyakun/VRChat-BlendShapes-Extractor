@@ -1,0 +1,19 @@
+{
+  "name": "com.vrchat.blendshapes-extractor",
+  "version": "1.5.0",
+  "displayName": "VRChat BlendShapes Extractor",
+  "description": "A Unity plugin to extract blendshapes from mesh files and generate structured data files (JSON)",
+  "unity": "2022.3",
+  "unityRelease": "22f1",
+  "keywords": [
+    "vrchat",
+    "blendshapes",
+    "mesh",
+    "extractor",
+    "json"
+  ],
+  "author": {
+    "name": "VRChat BlendShapes Team"
+  },
+  "type": "tool"
+}
