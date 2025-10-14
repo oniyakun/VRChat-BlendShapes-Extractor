@@ -61,10 +61,10 @@ namespace VRChat.BlendShapesExtractor.Editor
             DrawActionButtons();
             EditorGUILayout.Space(10);
             
-            DrawImportSection();
+            DrawPreviewSection();
             EditorGUILayout.Space(10);
             
-            DrawPreviewSection();
+            DrawImportSection();
         }
         
         private void DrawLanguageSelector()

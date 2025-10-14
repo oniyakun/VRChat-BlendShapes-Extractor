@@ -182,9 +182,9 @@ namespace VRChat.BlendShapesExtractor.Editor
                 // 导入功能相关字符串
                 ["import_function"] = new Dictionary<Language, string>
                 {
-                    [Language.English] = "JSON Import Function",
-                    [Language.Chinese] = "JSON导入功能",
-                    [Language.Japanese] = "JSONインポート機能"
+                    [Language.English] = "Import BlendShapes via JSON File",
+                    [Language.Chinese] = "通过JSON文件导入BlendShapes",
+                    [Language.Japanese] = "JSONファイル経由でBlendShapesをインポート"
                 },
                 ["import_settings"] = new Dictionary<Language, string>
                 {
