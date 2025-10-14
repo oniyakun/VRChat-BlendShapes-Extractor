@@ -21,7 +21,15 @@ Unity MeshファイルからBlendShapeデータを抽出し、構造化された
 
 ## インストール方法
 
-1. プラグインフォルダをプロジェクトの`Assets`ディレクトリにコピー
+### 方法1：ビルド済みパッケージのダウンロード（推奨）
+
+1. [Releases](https://github.com/oniyakun/VRChat-BlendShapes-Extractor/releases) ページにアクセスします
+2. 最新バージョンの `.unitypackage` ファイルをダウンロードします
+3. Unityでファイルをダブルクリックするか、`Assets > Import Package > Custom Package` からインポートします
+
+### 方法2：手動インストール
+
+1. プラグインフォルダをプロジェクトの`Assets`ディレクトリにコピーします
 2. Unityが自動的にコンパイルしてプラグインを読み込みます
 
 ## 使用方法

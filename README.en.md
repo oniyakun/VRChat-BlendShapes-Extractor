@@ -21,6 +21,14 @@ A Unity plugin for extracting BlendShape data from Unity Mesh files and generati
 
 ## Installation
 
+### Method 1: Download Pre-built Package (Recommended)
+
+1. Go to the [Releases](https://github.com/oniyakun/VRChat-BlendShapes-Extractor/releases) page
+2. Download the latest `.unitypackage` file
+3. Double-click the file in Unity or import it via `Assets > Import Package > Custom Package`
+
+### Method 2: Manual Installation
+
 1. Copy the plugin folder to your project's `Assets` directory
 2. Unity will automatically compile and load the plugin
 

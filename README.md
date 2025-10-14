@@ -21,6 +21,14 @@
 
 ## 安装方法
 
+### 方法一：下载预构建包（推荐）
+
+1. 前往 [Releases](https://github.com/oniyakun/VRChat-BlendShapes-Extractor/releases) 页面
+2. 下载最新版本的 `.unitypackage` 文件
+3. 在Unity中双击该文件或通过 `Assets > Import Package > Custom Package` 导入
+
+### 方法二：手动安装
+
 1. 将插件文件夹复制到项目的`Assets`目录下
 2. Unity会自动编译并加载插件
 
