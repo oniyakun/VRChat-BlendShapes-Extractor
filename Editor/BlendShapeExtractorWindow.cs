@@ -32,7 +32,7 @@ namespace VRChat.BlendShapesExtractor.Editor
         private Vector2 importScrollPosition;
         private bool allSelected = false;
         
-        [MenuItem("VRChat Tools/BlendShape Extractor")]
+        [MenuItem("Oniya Tools/BlendShape Extractor")]
         public static void ShowWindow()
         {
             var window = GetWindow<BlendShapeExtractorWindow>();
