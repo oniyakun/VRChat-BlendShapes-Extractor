@@ -275,6 +275,246 @@ namespace VRChat.BlendShapesExtractor
                 return false;
             }
         }
+        
+        /// <summary>
+        /// 从JSON文件导入BlendShape数据到指定的GameObject
+        /// </summary>
+        /// <param name="jsonFilePath">JSON文件路径</param>
+        /// <param name="targetGameObject">目标GameObject</param>
+        /// <param name="selectedBlendShapes">用户选择要导入的BlendShape名称列表</param>
+        /// <param name="forceImport">是否强制导入（忽略不匹配警告）</param>
+        /// <returns>导入结果信息</returns>
+        public static ImportResult ImportFromJson(string jsonFilePath, GameObject targetGameObject, List<string> selectedBlendShapes, bool forceImport = false)
+        {
+            var result = new ImportResult();
+            
+            try
+            {
+                // 读取JSON文件
+                if (!File.Exists(jsonFilePath))
+                {
+                    result.success = false;
+                    result.errorMessage = "JSON文件不存在";
+                    return result;
+                }
+                
+                string jsonContent = File.ReadAllText(jsonFilePath);
+                MeshBlendShapeData importData;
+                
+                try
+                {
+                    importData = JsonUtility.FromJson<MeshBlendShapeData>(jsonContent);
+                }
+                catch
+                {
+                    result.success = false;
+                    result.errorMessage = "JSON文件格式无效";
+                    return result;
+                }
+                
+                // 获取目标GameObject的所有SkinnedMeshRenderer
+                var skinnedMeshRenderers = targetGameObject.GetComponentsInChildren<SkinnedMeshRenderer>();
+                if (skinnedMeshRenderers.Length == 0)
+                {
+                    result.success = false;
+                    result.errorMessage = "目标GameObject中没有找到SkinnedMeshRenderer组件";
+                    return result;
+                }
+                
+                // 分析BlendShape匹配情况
+                result.matchAnalysis = AnalyzeBlendShapeMatching(importData, skinnedMeshRenderers, selectedBlendShapes);
+                
+                // 如果有不匹配的情况且用户没有强制导入，返回警告
+                if (!result.matchAnalysis.isFullMatch && !forceImport)
+                {
+                    result.success = false;
+                    result.needsUserConfirmation = true;
+                    result.warningMessage = GenerateMatchingWarningMessage(result.matchAnalysis);
+                    return result;
+                }
+                
+                // 执行导入
+                int importedCount = 0;
+                foreach (var renderer in skinnedMeshRenderers)
+                {
+                    if (renderer.sharedMesh == null) continue;
+                    
+                    var mesh = renderer.sharedMesh;
+                    for (int i = 0; i < mesh.blendShapeCount; i++)
+                    {
+                        string blendShapeName = mesh.GetBlendShapeName(i);
+                        
+                        // 检查是否在选择列表中
+                        if (!selectedBlendShapes.Contains(blendShapeName)) continue;
+                        
+                        // 在导入数据中查找匹配的BlendShape
+                        var matchingBlendShape = importData.blendShapes.Find(bs => bs.name == blendShapeName);
+                        if (matchingBlendShape != null && matchingBlendShape.frames.Count > 0)
+                        {
+                            // 应用权重值（使用第一帧的权重）
+                            renderer.SetBlendShapeWeight(i, matchingBlendShape.frames[0].weight);
+                            importedCount++;
+                        }
+                    }
+                }
+                
+                result.success = true;
+                result.importedCount = importedCount;
+                result.successMessage = $"成功导入 {importedCount} 个BlendShape权重值";
+                
+                return result;
+            }
+            catch (System.Exception e)
+            {
+                result.success = false;
+                result.errorMessage = $"导入过程中发生错误: {e.Message}";
+                return result;
+            }
+        }
+        
+        /// <summary>
+        /// 分析BlendShape匹配情况
+        /// </summary>
+        private static BlendShapeMatchAnalysis AnalyzeBlendShapeMatching(MeshBlendShapeData importData, SkinnedMeshRenderer[] renderers, List<string> selectedBlendShapes)
+        {
+            var analysis = new BlendShapeMatchAnalysis();
+            
+            // 收集目标Mesh中的所有BlendShape名称
+            var targetBlendShapes = new HashSet<string>();
+            foreach (var renderer in renderers)
+            {
+                if (renderer.sharedMesh == null) continue;
+                
+                var mesh = renderer.sharedMesh;
+                for (int i = 0; i < mesh.blendShapeCount; i++)
+                {
+                    targetBlendShapes.Add(mesh.GetBlendShapeName(i));
+                }
+            }
+            
+            // 收集导入数据中的BlendShape名称
+            var importBlendShapes = new HashSet<string>();
+            foreach (var blendShape in importData.blendShapes)
+            {
+                importBlendShapes.Add(blendShape.name);
+            }
+            
+            // 分析匹配情况
+            analysis.targetBlendShapes = new List<string>(targetBlendShapes);
+            analysis.importBlendShapes = new List<string>(importBlendShapes);
+            analysis.matchingBlendShapes = new List<string>();
+            analysis.missingInTarget = new List<string>();
+            analysis.missingInImport = new List<string>();
+            
+            // 找出匹配的BlendShape
+            foreach (string selectedName in selectedBlendShapes)
+            {
+                if (targetBlendShapes.Contains(selectedName) && importBlendShapes.Contains(selectedName))
+                {
+                    analysis.matchingBlendShapes.Add(selectedName);
+                }
+                else if (!targetBlendShapes.Contains(selectedName))
+                {
+                    analysis.missingInTarget.Add(selectedName);
+                }
+                else if (!importBlendShapes.Contains(selectedName))
+                {
+                    analysis.missingInImport.Add(selectedName);
+                }
+            }
+            
+            // 找出目标中有但导入数据中没有的
+            foreach (string targetName in targetBlendShapes)
+            {
+                if (!importBlendShapes.Contains(targetName))
+                {
+                    analysis.missingInImport.Add(targetName);
+                }
+            }
+            
+            // 找出导入数据中有但目标中没有的
+            foreach (string importName in importBlendShapes)
+            {
+                if (!targetBlendShapes.Contains(importName))
+                {
+                    analysis.missingInTarget.Add(importName);
+                }
+            }
+            
+            analysis.isFullMatch = analysis.missingInTarget.Count == 0 && analysis.missingInImport.Count == 0;
+            
+            return analysis;
+        }
+        
+        /// <summary>
+        /// 生成匹配警告消息
+        /// </summary>
+        private static string GenerateMatchingWarningMessage(BlendShapeMatchAnalysis analysis)
+        {
+            var message = "检测到BlendShape不完全匹配:\n\n";
+            
+            if (analysis.missingInTarget.Count > 0)
+            {
+                message += $"目标Mesh中缺少的BlendShape ({analysis.missingInTarget.Count}个):\n";
+                foreach (string name in analysis.missingInTarget)
+                {
+                    message += $"  • {name}\n";
+                }
+                message += "\n";
+            }
+            
+            if (analysis.missingInImport.Count > 0)
+            {
+                message += $"JSON文件中缺少的BlendShape ({analysis.missingInImport.Count}个):\n";
+                foreach (string name in analysis.missingInImport)
+                {
+                    message += $"  • {name}\n";
+                }
+                message += "\n";
+            }
+            
+            if (analysis.matchingBlendShapes.Count > 0)
+            {
+                message += $"将会导入匹配的BlendShape ({analysis.matchingBlendShapes.Count}个):\n";
+                foreach (string name in analysis.matchingBlendShapes)
+                {
+                    message += $"  • {name}\n";
+                }
+            }
+            
+            message += "\n是否继续导入？";
+            
+            return message;
+        }
+    }
+    
+    /// <summary>
+    /// 导入结果类
+    /// </summary>
+    [System.Serializable]
+    public class ImportResult
+    {
+        public bool success;
+        public bool needsUserConfirmation;
+        public string errorMessage;
+        public string warningMessage;
+        public string successMessage;
+        public int importedCount;
+        public BlendShapeMatchAnalysis matchAnalysis;
+    }
+    
+    /// <summary>
+    /// BlendShape匹配分析结果
+    /// </summary>
+    [System.Serializable]
+    public class BlendShapeMatchAnalysis
+    {
+        public bool isFullMatch;
+        public List<string> targetBlendShapes;
+        public List<string> importBlendShapes;
+        public List<string> matchingBlendShapes;
+        public List<string> missingInTarget;
+        public List<string> missingInImport;
     }
     
     /// <summary>
