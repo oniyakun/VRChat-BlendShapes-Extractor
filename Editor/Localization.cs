@@ -178,6 +178,115 @@ namespace VRChat.BlendShapesExtractor.Editor
                     [Language.English] = "An error occurred during export:\n{0}",
                     [Language.Chinese] = "导出过程中发生错误:\n{0}",
                     [Language.Japanese] = "エクスポート中にエラーが発生しました:\n{0}"
+                },
+                // 导入功能相关字符串
+                ["import_function"] = new Dictionary<Language, string>
+                {
+                    [Language.English] = "JSON Import Function",
+                    [Language.Chinese] = "JSON导入功能",
+                    [Language.Japanese] = "JSONインポート機能"
+                },
+                ["import_settings"] = new Dictionary<Language, string>
+                {
+                    [Language.English] = "Import Settings",
+                    [Language.Chinese] = "导入设置",
+                    [Language.Japanese] = "インポート設定"
+                },
+                ["target_gameobject_import"] = new Dictionary<Language, string>
+                {
+                    [Language.English] = "Target GameObject",
+                    [Language.Chinese] = "目标GameObject",
+                    [Language.Japanese] = "ターゲットGameObject"
+                },
+                ["json_file"] = new Dictionary<Language, string>
+                {
+                    [Language.English] = "JSON File",
+                    [Language.Chinese] = "JSON文件",
+                    [Language.Japanese] = "JSONファイル"
+                },
+                ["import_blendshapes"] = new Dictionary<Language, string>
+                {
+                    [Language.English] = "Import BlendShapes",
+                    [Language.Chinese] = "导入BlendShape",
+                    [Language.Japanese] = "BlendShapeをインポート"
+                },
+                ["selected_count"] = new Dictionary<Language, string>
+                {
+                    [Language.English] = "Selected: {0} BlendShapes",
+                    [Language.Chinese] = "已选择: {0} 个BlendShape",
+                    [Language.Japanese] = "選択済み: {0} BlendShape"
+                },
+                ["import_success"] = new Dictionary<Language, string>
+                {
+                    [Language.English] = "Import Successful",
+                    [Language.Chinese] = "导入成功",
+                    [Language.Japanese] = "インポート成功"
+                },
+                ["import_error"] = new Dictionary<Language, string>
+                {
+                    [Language.English] = "Import Error",
+                    [Language.Chinese] = "导入错误",
+                    [Language.Japanese] = "インポートエラー"
+                },
+                ["no_blendshapes_selected"] = new Dictionary<Language, string>
+                {
+                    [Language.English] = "Please select at least one BlendShape",
+                    [Language.Chinese] = "请至少选择一个BlendShape",
+                    [Language.Japanese] = "少なくとも1つのBlendShapeを選択してください"
+                },
+                ["confirm"] = new Dictionary<Language, string>
+                {
+                    [Language.English] = "OK",
+                    [Language.Chinese] = "确定",
+                    [Language.Japanese] = "OK"
+                },
+                ["cancel"] = new Dictionary<Language, string>
+                {
+                    [Language.English] = "Cancel",
+                    [Language.Chinese] = "取消",
+                    [Language.Japanese] = "キャンセル"
+                },
+                ["continue_import"] = new Dictionary<Language, string>
+                {
+                    [Language.English] = "Continue Import",
+                    [Language.Chinese] = "继续导入",
+                    [Language.Japanese] = "インポートを続行"
+                },
+                ["blendshape_mismatch_warning"] = new Dictionary<Language, string>
+                {
+                    [Language.English] = "BlendShape Mismatch Warning",
+                    [Language.Chinese] = "BlendShape不匹配警告",
+                    [Language.Japanese] = "BlendShape不一致警告"
+                },
+                ["json_load_error"] = new Dictionary<Language, string>
+                {
+                    [Language.English] = "Unable to load JSON file or no BlendShape data found",
+                    [Language.Chinese] = "无法加载JSON文件或文件中没有BlendShape数据",
+                    [Language.Japanese] = "JSONファイルを読み込めないか、BlendShapeデータが見つかりません"
+                },
+                ["blendshape_selection"] = new Dictionary<Language, string>
+                {
+                    [Language.English] = "BlendShape Selection (Total: {0})",
+                    [Language.Chinese] = "BlendShape选择 (共{0}个)",
+                    [Language.Japanese] = "BlendShape選択 (合計: {0}個)"
+                },
+                ["select_all"] = new Dictionary<Language, string>
+                {
+                    [Language.English] = "Select All",
+                    [Language.Chinese] = "全选",
+                    [Language.Japanese] = "すべて選択"
+                },
+                ["select_none"] = new Dictionary<Language, string>
+                {
+                    [Language.English] = "Select None",
+                    [Language.Chinese] = "全不选",
+                    [Language.Japanese] = "すべて解除"
+                },
+                ["invert_selection"] = new Dictionary<Language, string>
+                {
+                    [Language.English] = "Invert Selection",
+                    [Language.Chinese] = "反选",
+                    [Language.Japanese] = "選択を反転"
                 }
             };
 

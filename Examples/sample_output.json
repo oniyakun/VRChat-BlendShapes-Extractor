@@ -1,71 +1,204 @@
 {
-  "meshName": "CharacterHead",
-  "meshPath": "Assets/Models/Character/Head.fbx",
-  "totalBlendShapeCount": 8,
-  "blendShapes": [
-    {
-      "name": "eye_blink_left",
-      "frames": [
+    "meshes": [
         {
-          "weight": 45.6
+            "meshName": "Body all",
+            "meshPath": "Assets/Kyubi closet/Moe/FBX/Body all.mesh",
+            "totalBlendShapeCount": 0,
+            "blendShapes": [
+                {
+                    "name": "Corset",
+                    "frames": [
+                        {
+                            "weight": 66.6
+                        }
+                    ]
+                },
+                {
+                    "name": "High heeled_OFF",
+                    "frames": [
+                        {
+                            "weight": 0.0
+                        }
+                    ]
+                },
+                {
+                    "name": "High heeled_ON",
+                    "frames": [
+                        {
+                            "weight": 0.0
+                        }
+                    ]
+                },
+                {
+                    "name": "Knee Socks",
+                    "frames": [
+                        {
+                            "weight": 38.1
+                        }
+                    ]
+                },
+                {
+                    "name": "Big breasts",
+                    "frames": [
+                        {
+                            "weight": 0.0
+                        }
+                    ]
+                },
+                {
+                    "name": "Small breasts",
+                    "frames": [
+                        {
+                            "weight": 33.8
+                        }
+                    ]
+                },
+                {
+                    "name": "Nipple_ON",
+                    "frames": [
+                        {
+                            "weight": 0.0
+                        }
+                    ]
+                },
+                {
+                    "name": "Big nipple",
+                    "frames": [
+                        {
+                            "weight": 0.0
+                        }
+                    ]
+                },
+                {
+                    "name": "Small nipple",
+                    "frames": [
+                        {
+                            "weight": 33.1
+                        }
+                    ]
+                },
+                {
+                    "name": "===Nail===",
+                    "frames": [
+                        {
+                            "weight": 0.0
+                        }
+                    ]
+                },
+                {
+                    "name": "Point",
+                    "frames": [
+                        {
+                            "weight": 0.0
+                        }
+                    ]
+                },
+                {
+                    "name": "Stiletto",
+                    "frames": [
+                        {
+                            "weight": 0.0
+                        }
+                    ]
+                },
+                {
+                    "name": "===Body delete===",
+                    "frames": [
+                        {
+                            "weight": 0.0
+                        }
+                    ]
+                },
+                {
+                    "name": "Chest1",
+                    "frames": [
+                        {
+                            "weight": 100.0
+                        }
+                    ]
+                },
+                {
+                    "name": "Chest2",
+                    "frames": [
+                        {
+                            "weight": 0.0
+                        }
+                    ]
+                },
+                {
+                    "name": "Spine",
+                    "frames": [
+                        {
+                            "weight": 37.8
+                        }
+                    ]
+                },
+                {
+                    "name": "Hips",
+                    "frames": [
+                        {
+                            "weight": 0.0
+                        }
+                    ]
+                },
+                {
+                    "name": "Knee",
+                    "frames": [
+                        {
+                            "weight": 45.6
+                        }
+                    ]
+                },
+                {
+                    "name": "Ankle",
+                    "frames": [
+                        {
+                            "weight": 0.0
+                        }
+                    ]
+                },
+                {
+                    "name": "Foot",
+                    "frames": [
+                        {
+                            "weight": 41.9
+                        }
+                    ]
+                },
+                {
+                    "name": "Shoulder",
+                    "frames": [
+                        {
+                            "weight": 0.0
+                        }
+                    ]
+                },
+                {
+                    "name": "Elbow",
+                    "frames": [
+                        {
+                            "weight": 0.0
+                        }
+                    ]
+                },
+                {
+                    "name": "Hand",
+                    "frames": [
+                        {
+                            "weight": 0.0
+                        }
+                    ]
+                },
+                {
+                    "name": "Foot2",
+                    "frames": [
+                        {
+                            "weight": 0.0
+                        }
+                    ]
+                }
+            ],
+            "extractionDate": "2025-10-14 07:32:16"
         }
-      ]
-    },
-    {
-      "name": "eye_blink_right",
-      "frames": [
-        {
-          "weight": 32.1
-        }
-      ]
-    },
-    {
-      "name": "mouth_smile",
-      "frames": [
-        {
-          "weight": 78.3
-        }
-      ]
-    },
-    {
-      "name": "mouth_frown",
-      "frames": [
-        {
-          "weight": 0.0
-        }
-      ]
-    },
-    {
-      "name": "eyebrow_raise",
-      "frames": [
-        {
-          "weight": 25.7
-        }
-      ]
-    },
-    {
-      "name": "cheek_puff",
-      "frames": [
-        {
-          "weight": 12.1
-        }
-      ]
-    },
-    {
-      "name": "jaw_open",
-      "frames": [
-        {
-          "weight": 89.4
-        }
-      ]
-    },
-    {
-      "name": "nose_scrunch",
-      "frames": [
-        {
-          "weight": 5.8
-        }
-      ]
-    }
-  ]
+    ]
 }

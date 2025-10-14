@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using VRChat.BlendShapesExtractor;
 
 namespace VRChat.BlendShapesExtractor.Editor
 {
@@ -25,7 +26,7 @@ namespace VRChat.BlendShapesExtractor.Editor
         // 导入功能相关变量
         private bool showImportSection = false;
         private GameObject importTargetGameObject;
-        private string importJsonPath = "";
+        private TextAsset importJsonAsset;
         private MeshBlendShapeData importData;
         private Dictionary<string, bool> blendShapeSelections = new Dictionary<string, bool>();
         private Vector2 importScrollPosition;
@@ -313,16 +314,16 @@ namespace VRChat.BlendShapesExtractor.Editor
         private void DrawImportSection()
         {
             // 导入功能折叠面板
-            showImportSection = EditorGUILayout.Foldout(showImportSection, "JSON导入功能", true, EditorStyles.foldoutHeader);
+            showImportSection = EditorGUILayout.Foldout(showImportSection, Localization.GetString("import_function"), true, EditorStyles.foldoutHeader);
             
             if (showImportSection)
             {
                 EditorGUILayout.BeginVertical("box");
                 
                 // 目标GameObject选择
-                EditorGUILayout.LabelField("导入设置", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField(Localization.GetString("import_settings"), EditorStyles.boldLabel);
                 importTargetGameObject = (GameObject)EditorGUILayout.ObjectField(
-                    "目标GameObject", 
+                    Localization.GetString("target_gameobject_import"), 
                     importTargetGameObject, 
                     typeof(GameObject), 
                     true
@@ -330,21 +331,29 @@ namespace VRChat.BlendShapesExtractor.Editor
                 
                 EditorGUILayout.Space(5);
                 
-                // JSON文件路径选择
-                EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.LabelField("JSON文件", GUILayout.Width(80));
-                importJsonPath = EditorGUILayout.TextField(importJsonPath);
+                // JSON文件选择（拖拽式）
+                TextAsset newJsonAsset = (TextAsset)EditorGUILayout.ObjectField(
+                    Localization.GetString("json_file"), 
+                    importJsonAsset, 
+                    typeof(TextAsset), 
+                    false
+                );
                 
-                if (GUILayout.Button("浏览", GUILayout.Width(60)))
+                // 检测到新的JSON文件时自动加载
+                if (newJsonAsset != importJsonAsset)
                 {
-                    string selectedPath = EditorUtility.OpenFilePanel("选择JSON文件", "", "json");
-                    if (!string.IsNullOrEmpty(selectedPath))
+                    importJsonAsset = newJsonAsset;
+                    if (importJsonAsset != null)
                     {
-                        importJsonPath = selectedPath;
                         LoadJsonFile();
                     }
+                    else
+                    {
+                        // 清空数据
+                        importData = null;
+                        blendShapeSelections.Clear();
+                    }
                 }
-                EditorGUILayout.EndHorizontal();
                 
                 EditorGUILayout.Space(10);
                 
@@ -355,9 +364,9 @@ namespace VRChat.BlendShapesExtractor.Editor
                     EditorGUILayout.Space(10);
                     DrawImportButtons();
                 }
-                else if (!string.IsNullOrEmpty(importJsonPath))
+                else if (importJsonAsset != null)
                 {
-                    EditorGUILayout.HelpBox("无法加载JSON文件或文件中没有BlendShape数据", MessageType.Warning);
+                    EditorGUILayout.HelpBox(Localization.GetString("json_load_error"), MessageType.Warning);
                 }
                 
                 EditorGUILayout.EndVertical();
@@ -366,19 +375,19 @@ namespace VRChat.BlendShapesExtractor.Editor
         
         private void DrawBlendShapeSelection()
         {
-            EditorGUILayout.LabelField($"BlendShape选择 (共{importData.blendShapes.Count}个)", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField(Localization.GetString("blendshape_selection", importData.blendShapes.Count), EditorStyles.boldLabel);
             
             // 全选/反选按钮
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("全选"))
+            if (GUILayout.Button(Localization.GetString("select_all")))
             {
                 SelectAllBlendShapes(true);
             }
-            if (GUILayout.Button("全不选"))
+            if (GUILayout.Button(Localization.GetString("select_none")))
             {
                 SelectAllBlendShapes(false);
             }
-            if (GUILayout.Button("反选"))
+            if (GUILayout.Button(Localization.GetString("invert_selection")))
             {
                 InvertBlendShapeSelection();
             }
@@ -414,46 +423,75 @@ namespace VRChat.BlendShapesExtractor.Editor
         
         private void DrawImportButtons()
         {
-            EditorGUILayout.BeginHorizontal();
+            GUI.enabled = importTargetGameObject != null && importJsonAsset != null && importData != null && GetSelectedBlendShapes().Count > 0;
             
-            GUI.enabled = importTargetGameObject != null && GetSelectedBlendShapes().Count > 0;
-            
-            if (GUILayout.Button("导入选中的BlendShape"))
+            if (GUILayout.Button(Localization.GetString("import_blendshapes")))
             {
                 PerformImport(false);
             }
             
-            if (GUILayout.Button("强制导入"))
-            {
-                PerformImport(true);
-            }
-            
             GUI.enabled = true;
-            
-            EditorGUILayout.EndHorizontal();
             
             // 显示选中数量
             int selectedCount = GetSelectedBlendShapes().Count;
-            EditorGUILayout.LabelField($"已选择: {selectedCount} 个BlendShape");
+            EditorGUILayout.LabelField(Localization.GetString("selected_count", selectedCount));
         }
         
         private void LoadJsonFile()
         {
             try
             {
-                if (File.Exists(importJsonPath))
+                if (importJsonAsset != null && !string.IsNullOrEmpty(importJsonAsset.text))
                 {
-                    string jsonContent = File.ReadAllText(importJsonPath);
-                    importData = JsonUtility.FromJson<MeshBlendShapeData>(jsonContent);
+                    string jsonContent = importJsonAsset.text;
                     blendShapeSelections.Clear();
                     
-                    if (importData != null && importData.blendShapes != null)
+                    // 首先尝试作为单个mesh数据加载
+                    try
                     {
-                        foreach (var blendShape in importData.blendShapes)
+                        importData = JsonUtility.FromJson<MeshBlendShapeData>(jsonContent);
+                        if (importData != null && importData.blendShapes != null && importData.blendShapes.Count > 0)
                         {
-                            blendShapeSelections[blendShape.name] = false;
+                            foreach (var blendShape in importData.blendShapes)
+                            {
+                                blendShapeSelections[blendShape.name] = true; // 自动选择所有BlendShape
+                            }
+                            return;
                         }
                     }
+                    catch (System.Exception)
+                    {
+                        // 忽略解析异常
+                    }
+                    
+                    // 尝试作为多mesh数据加载
+                    try
+                    {
+                        var collection = JsonUtility.FromJson<MeshBlendShapeDataCollection>(jsonContent);
+                        if (collection != null && collection.meshes != null && collection.meshes.Count > 0)
+                        {
+                            // 如果有多个mesh，使用第一个包含BlendShape的mesh
+                            foreach (var mesh in collection.meshes)
+                            {
+                                if (mesh.blendShapes != null && mesh.blendShapes.Count > 0)
+                                {
+                                    importData = mesh;
+                                    foreach (var blendShape in mesh.blendShapes)
+                                    {
+                                        blendShapeSelections[blendShape.name] = true; // 自动选择所有BlendShape
+                                    }
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                    catch (System.Exception)
+                    {
+                        // 忽略解析异常
+                    }
+                    
+                    importData = null;
+                    blendShapeSelections.Clear();
                 }
                 else
                 {
@@ -461,9 +499,8 @@ namespace VRChat.BlendShapesExtractor.Editor
                     blendShapeSelections.Clear();
                 }
             }
-            catch (System.Exception e)
+            catch (System.Exception)
             {
-                Debug.LogError($"加载JSON文件失败: {e.Message}");
                 importData = null;
                 blendShapeSelections.Clear();
             }
@@ -505,46 +542,58 @@ namespace VRChat.BlendShapesExtractor.Editor
             try
             {
                 var selectedBlendShapes = GetSelectedBlendShapes();
+                
+
+                
                 if (selectedBlendShapes.Count == 0)
                 {
-                    EditorUtility.DisplayDialog("错误", "请至少选择一个BlendShape", "确定");
+                    EditorUtility.DisplayDialog(Localization.GetString("import_error"), Localization.GetString("no_blendshapes_selected"), Localization.GetString("confirm"));
                     return;
                 }
                 
-                var result = BlendShapeExtractor.ImportFromJson(importJsonPath, importTargetGameObject, selectedBlendShapes, forceImport);
+                var result = BlendShapeExtractor.ImportFromJson(importJsonAsset.text, importTargetGameObject, selectedBlendShapes, forceImport);
                 
                 if (result.needsUserConfirmation && !forceImport)
                 {
                     // 显示警告对话框
                     bool userConfirmed = EditorUtility.DisplayDialog(
-                        "BlendShape不匹配警告", 
+                        Localization.GetString("blendshape_mismatch_warning"), 
                         result.warningMessage, 
-                        "继续导入", 
-                        "取消"
+                        Localization.GetString("continue_import"), 
+                        Localization.GetString("cancel")
                     );
                     
                     if (userConfirmed)
                     {
-                        // 用户确认后强制导入
-                        PerformImport(true);
+                        // 用户确认后直接强制导入，避免重复调用
+                        var forceResult = BlendShapeExtractor.ImportFromJson(importJsonAsset.text, importTargetGameObject, selectedBlendShapes, true);
+                        
+                        if (forceResult.success)
+                        {
+                            EditorUtility.DisplayDialog(Localization.GetString("import_success"), forceResult.successMessage, Localization.GetString("confirm"));
+                            EditorUtility.SetDirty(importTargetGameObject);
+                        }
+                        else
+                        {
+                            EditorUtility.DisplayDialog(Localization.GetString("import_error"), forceResult.errorMessage, Localization.GetString("confirm"));
+                        }
                     }
                 }
                 else if (result.success)
                 {
-                    EditorUtility.DisplayDialog("导入成功", result.successMessage, "确定");
+                    EditorUtility.DisplayDialog(Localization.GetString("import_success"), result.successMessage, Localization.GetString("confirm"));
                     
                     // 标记场景为已修改
                     EditorUtility.SetDirty(importTargetGameObject);
                 }
                 else
                 {
-                    EditorUtility.DisplayDialog("导入失败", result.errorMessage, "确定");
+                    EditorUtility.DisplayDialog(Localization.GetString("import_error"), result.errorMessage, Localization.GetString("confirm"));
                 }
             }
             catch (System.Exception e)
             {
-                EditorUtility.DisplayDialog("错误", $"导入过程中发生错误: {e.Message}", "确定");
-                Debug.LogError($"BlendShape导入错误: {e}");
+                EditorUtility.DisplayDialog(Localization.GetString("import_error"), Localization.GetString("import_error") + ": " + e.Message, Localization.GetString("confirm"));
             }
         }
     }

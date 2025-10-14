@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
@@ -284,31 +285,65 @@ namespace VRChat.BlendShapesExtractor
         /// <param name="selectedBlendShapes">用户选择要导入的BlendShape名称列表</param>
         /// <param name="forceImport">是否强制导入（忽略不匹配警告）</param>
         /// <returns>导入结果信息</returns>
-        public static ImportResult ImportFromJson(string jsonFilePath, GameObject targetGameObject, List<string> selectedBlendShapes, bool forceImport = false)
+        public static ImportResult ImportFromJson(string jsonContent, GameObject targetGameObject, List<string> selectedBlendShapes, bool forceImport = false)
         {
             var result = new ImportResult();
             
             try
             {
-                // 读取JSON文件
-                if (!File.Exists(jsonFilePath))
+                // 验证JSON内容
+                if (string.IsNullOrEmpty(jsonContent))
                 {
                     result.success = false;
-                    result.errorMessage = "JSON文件不存在";
+                    result.errorMessage = "JSON内容为空";
                     return result;
                 }
                 
-                string jsonContent = File.ReadAllText(jsonFilePath);
-                MeshBlendShapeData importData;
+                MeshBlendShapeData importData = null;
                 
+                // 首先尝试作为单个mesh数据加载
                 try
                 {
                     importData = JsonUtility.FromJson<MeshBlendShapeData>(jsonContent);
+                    if (importData == null || importData.blendShapes == null || importData.blendShapes.Count == 0)
+                    {
+                        importData = null;
+                    }
                 }
-                catch
+                catch (System.Exception)
+                {
+                    importData = null;
+                }
+                
+                // 如果单个mesh格式失败，尝试多mesh格式
+                if (importData == null)
+                {
+                    try
+                    {
+                        var collection = JsonUtility.FromJson<MeshBlendShapeDataCollection>(jsonContent);
+                        if (collection != null && collection.meshes != null && collection.meshes.Count > 0)
+                        {
+                            // 使用第一个包含BlendShape的mesh
+                            foreach (var mesh in collection.meshes)
+                            {
+                                if (mesh.blendShapes != null && mesh.blendShapes.Count > 0)
+                                {
+                                    importData = mesh;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    catch (System.Exception)
+                    {
+                        // 忽略解析异常
+                    }
+                }
+                
+                if (importData == null)
                 {
                     result.success = false;
-                    result.errorMessage = "JSON文件格式无效";
+                    result.errorMessage = "JSON文件格式无效或不包含有效的BlendShape数据";
                     return result;
                 }
                 
@@ -388,7 +423,8 @@ namespace VRChat.BlendShapesExtractor
                 var mesh = renderer.sharedMesh;
                 for (int i = 0; i < mesh.blendShapeCount; i++)
                 {
-                    targetBlendShapes.Add(mesh.GetBlendShapeName(i));
+                    string blendShapeName = mesh.GetBlendShapeName(i);
+                    targetBlendShapes.Add(blendShapeName);
                 }
             }
             
@@ -406,42 +442,58 @@ namespace VRChat.BlendShapesExtractor
             analysis.missingInTarget = new List<string>();
             analysis.missingInImport = new List<string>();
             
-            // 找出匹配的BlendShape
+            // 只分析选中的BlendShape的匹配情况
             foreach (string selectedName in selectedBlendShapes)
             {
-                if (targetBlendShapes.Contains(selectedName) && importBlendShapes.Contains(selectedName))
+                // 详细检查目标中的匹配
+                bool foundInTarget = false;
+                foreach (var targetName in targetBlendShapes)
+                {
+                    if (targetName == selectedName)
+                    {
+                        foundInTarget = true;
+                        break;
+                    }
+                    else if (targetName.Trim() == selectedName.Trim())
+                    {
+                        foundInTarget = true;
+                        break;
+                    }
+                }
+                
+                // 详细检查JSON中的匹配
+                bool foundInImport = false;
+                foreach (var importName in importBlendShapes)
+                {
+                    if (importName == selectedName)
+                    {
+                        foundInImport = true;
+                        break;
+                    }
+                    else if (importName.Trim() == selectedName.Trim())
+                    {
+                        foundInImport = true;
+                        break;
+                    }
+                }
+                
+                // 显示匹配结果
+                if (foundInTarget && foundInImport)
                 {
                     analysis.matchingBlendShapes.Add(selectedName);
                 }
-                else if (!targetBlendShapes.Contains(selectedName))
+                else if (!foundInTarget)
                 {
                     analysis.missingInTarget.Add(selectedName);
                 }
-                else if (!importBlendShapes.Contains(selectedName))
+                else if (!foundInImport)
                 {
                     analysis.missingInImport.Add(selectedName);
                 }
             }
             
-            // 找出目标中有但导入数据中没有的
-            foreach (string targetName in targetBlendShapes)
-            {
-                if (!importBlendShapes.Contains(targetName))
-                {
-                    analysis.missingInImport.Add(targetName);
-                }
-            }
-            
-            // 找出导入数据中有但目标中没有的
-            foreach (string importName in importBlendShapes)
-            {
-                if (!targetBlendShapes.Contains(importName))
-                {
-                    analysis.missingInTarget.Add(importName);
-                }
-            }
-            
-            analysis.isFullMatch = analysis.missingInTarget.Count == 0 && analysis.missingInImport.Count == 0;
+            // 判断是否完全匹配：只要选中的BlendShape都能匹配就算完全匹配
+            analysis.isFullMatch = selectedBlendShapes.Count > 0 && analysis.matchingBlendShapes.Count == selectedBlendShapes.Count;
             
             return analysis;
         }
@@ -451,11 +503,21 @@ namespace VRChat.BlendShapesExtractor
         /// </summary>
         private static string GenerateMatchingWarningMessage(BlendShapeMatchAnalysis analysis)
         {
-            var message = "检测到BlendShape不完全匹配:\n\n";
+            var message = "BlendShape匹配检查结果:\n\n";
+            
+            if (analysis.matchingBlendShapes.Count > 0)
+            {
+                message += $"✓ 可以导入的BlendShape ({analysis.matchingBlendShapes.Count}个):\n";
+                foreach (string name in analysis.matchingBlendShapes)
+                {
+                    message += $"  • {name}\n";
+                }
+                message += "\n";
+            }
             
             if (analysis.missingInTarget.Count > 0)
             {
-                message += $"目标Mesh中缺少的BlendShape ({analysis.missingInTarget.Count}个):\n";
+                message += $"⚠ 目标Mesh中不存在的BlendShape ({analysis.missingInTarget.Count}个):\n";
                 foreach (string name in analysis.missingInTarget)
                 {
                     message += $"  • {name}\n";
@@ -465,7 +527,7 @@ namespace VRChat.BlendShapesExtractor
             
             if (analysis.missingInImport.Count > 0)
             {
-                message += $"JSON文件中缺少的BlendShape ({analysis.missingInImport.Count}个):\n";
+                message += $"⚠ JSON文件中不存在的BlendShape ({analysis.missingInImport.Count}个):\n";
                 foreach (string name in analysis.missingInImport)
                 {
                     message += $"  • {name}\n";
@@ -475,14 +537,12 @@ namespace VRChat.BlendShapesExtractor
             
             if (analysis.matchingBlendShapes.Count > 0)
             {
-                message += $"将会导入匹配的BlendShape ({analysis.matchingBlendShapes.Count}个):\n";
-                foreach (string name in analysis.matchingBlendShapes)
-                {
-                    message += $"  • {name}\n";
-                }
+                message += "是否继续导入匹配的BlendShape？";
             }
-            
-            message += "\n是否继续导入？";
+            else
+            {
+                message += "没有可以导入的BlendShape，请检查选择或文件内容。";
+            }
             
             return message;
         }
