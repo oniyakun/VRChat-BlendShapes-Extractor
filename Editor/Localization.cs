@@ -103,9 +103,33 @@ namespace VRChat.BlendShapesExtractor.Editor
                 },
                 ["extract_and_export"] = new Dictionary<Language, string>
                 {
-                    [Language.English] = "Extract and Export JSON",
-                    [Language.Chinese] = "提取并导出JSON",
-                    [Language.Japanese] = "抽出してJSONエクスポート"
+                    [Language.English] = "Extract & Export",
+                    [Language.Chinese] = "提取并导出",
+                    [Language.Japanese] = "抽出＆エクスポート"
+                },
+                ["copy_to_clipboard"] = new Dictionary<Language, string>
+                {
+                    [Language.English] = "Copy to Clipboard",
+                    [Language.Chinese] = "复制到剪贴板",
+                    [Language.Japanese] = "クリップボードにコピー"
+                },
+                ["copy_success"] = new Dictionary<Language, string>
+                {
+                    [Language.English] = "Successfully copied BlendShape data from {0} mesh(es) to clipboard!",
+                    [Language.Chinese] = "成功将 {0} 个Mesh的BlendShape数据复制到剪贴板！",
+                    [Language.Japanese] = "{0}個のMeshのBlendShapeデータをクリップボードにコピーしました！"
+                },
+                ["copy_error"] = new Dictionary<Language, string>
+                {
+                    [Language.English] = "Failed to copy to clipboard: {0}",
+                    [Language.Chinese] = "复制到剪贴板失败：{0}",
+                    [Language.Japanese] = "クリップボードへのコピーに失敗しました：{0}"
+                },
+                ["no_target_selected"] = new Dictionary<Language, string>
+                {
+                    [Language.English] = "Please select a target GameObject first.",
+                    [Language.Chinese] = "请先选择一个目标GameObject。",
+                    [Language.Japanese] = "まずターゲットGameObjectを選択してください。"
                 },
                 ["clear"] = new Dictionary<Language, string>
                 {
@@ -179,7 +203,62 @@ namespace VRChat.BlendShapesExtractor.Editor
                     [Language.Chinese] = "导出过程中发生错误:\n{0}",
                     [Language.Japanese] = "エクスポート中にエラーが発生しました:\n{0}"
                 },
-                // 导入功能相关字符串
+                ["copy_json_success"] = new Dictionary<Language, string>
+                {
+                    [Language.English] = "JSON copied to clipboard successfully!",
+                    [Language.Chinese] = "JSON已成功复制到剪贴板！",
+                    [Language.Japanese] = "JSONがクリップボードにコピーされました！"
+                },
+                ["copy_json_failed"] = new Dictionary<Language, string>
+                {
+                    [Language.English] = "Failed to copy JSON to clipboard",
+                    [Language.Chinese] = "复制JSON到剪贴板失败",
+                    [Language.Japanese] = "JSONのクリップボードへのコピーに失敗しました"
+                },
+                ["copy_json_no_target"] = new Dictionary<Language, string>
+                {
+                    [Language.English] = "Please select a target GameObject first",
+                    [Language.Chinese] = "请先选择目标GameObject",
+                    [Language.Japanese] = "まず対象のGameObjectを選択してください"
+                },
+                
+                // 导入功能的文本框相关
+                ["input_method"] = new Dictionary<Language, string>
+                {
+                    [Language.English] = "Input Method",
+                    [Language.Chinese] = "输入方式",
+                    [Language.Japanese] = "入力方法"
+                },
+                ["use_text_input"] = new Dictionary<Language, string>
+                {
+                    [Language.English] = "Use Text Input",
+                    [Language.Chinese] = "使用文本输入",
+                    [Language.Japanese] = "テキスト入力を使用"
+                },
+                ["json_text_input"] = new Dictionary<Language, string>
+                {
+                    [Language.English] = "JSON Text Input",
+                    [Language.Chinese] = "JSON文本输入",
+                    [Language.Japanese] = "JSONテキスト入力"
+                },
+                ["paste_from_clipboard"] = new Dictionary<Language, string>
+                {
+                    [Language.English] = "Paste from Clipboard",
+                    [Language.Chinese] = "从剪贴板粘贴",
+                    [Language.Japanese] = "クリップボードから貼り付け"
+                },
+                ["clear_text"] = new Dictionary<Language, string>
+                {
+                    [Language.English] = "Clear",
+                    [Language.Chinese] = "清空",
+                    [Language.Japanese] = "クリア"
+                },
+                ["json_content_empty"] = new Dictionary<Language, string>
+                {
+                    [Language.English] = "JSON content is empty",
+                    [Language.Chinese] = "JSON内容为空",
+                    [Language.Japanese] = "JSONコンテンツが空です"
+                },
                 ["import_function"] = new Dictionary<Language, string>
                 {
                     [Language.English] = "Import BlendShapes via JSON File",
